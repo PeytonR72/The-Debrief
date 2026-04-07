@@ -1,3 +1,287 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Design tokens ───────────────────────────────────────── */
+:root {
+  --color-bg:           #0f1117;
+  --color-surface:      #1a1d27;
+  --color-border:       #2a2d3a;
+  --color-text:         #f0f2f8;
+  --color-muted:        #8b90a8;
+  --color-accent:       #4a9eff;
+  --color-accent-hover: #6ab0ff;
+  --color-danger:       #ff6b6b;
+  --color-success:      #4affb0;
+}
+
+/* ── Reset & Base ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body), 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Radial gradient — lit from above */
+body {
+  min-height: 100vh;
+  position: relative;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, #1e2540 0%, transparent 60%),
+    var(--color-bg);
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  opacity: 0.4;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent-hover); }
+
+/* Navbar sign out hover — CSS-only so Navbar stays a server component */
+.btn-signout:hover {
+  color: var(--color-text) !important;
+  border-color: var(--color-accent) !important;
+}
+
+/* Back to top button */
+.back-to-top:hover {
+  color: var(--color-text) !important;
+  border-color: var(--color-muted) !important;
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Button press feel */
+button:active {
+  transform: scale(0.97);
+}
+
+/* ── Gradient-border card surface ────────────────────────── */
+.card-surface {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
+    linear-gradient(160deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 100%) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 12px 32px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(74,158,255,0.1);
+}
+
+/* ── Scan line on card hover ─────────────────────────────── */
+.card-scan {
+  position: relative;
+  overflow: hidden;
+}
+.card-scan::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0;
+  top: -2px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(74,158,255,0.3), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+.card-scan:hover::after {
+  animation: scanLine 0.42s ease forwards;
+}
+@keyframes scanLine {
+  from { top: 0; opacity: 1; }
+  to   { top: 100%; opacity: 0; }
+}
+
+/* Arrow fade-in on hover */
+.card-arrow {
+  opacity: 0;
+  transform: translateX(-5px);
+  transition: opacity 150ms ease, transform 150ms ease, color 150ms ease;
+  color: var(--color-accent);
+}
+.card-scan:hover .card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ── Input glow ──────────────────────────────────────────── */
+.input-field {
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.input-field:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.13);
+}
+
+/* ── Shimmer button sweep ────────────────────────────────── */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.13), transparent);
+  transition: none;
+  pointer-events: none;
+}
+.btn-shimmer:not(:disabled):hover::after {
+  left: 160%;
+  transition: left 0.45s ease;
+}
+
+/* ── Hero floating icon ──────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
+}
+.icon-float { animation: float 3s ease-in-out infinite; }
+
+/* Hero blob pulse */
+@keyframes blobPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.05); }
+}
+
+/* ── Hero glow ───────────────────────────────────────────── */
+.hero-glow {
+  position: absolute;
+  top: -20%; left: 50%;
+  transform: translateX(-50%);
+  width: 900px; height: 600px;
+  background: radial-gradient(ellipse, rgba(74,158,255,0.07) 0%, transparent 65%);
+  animation: heroGlow 9s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes heroGlow {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50%       { opacity: 1;   transform: translateX(-50%) scale(1.08); }
+}
+
+/* ── Staggered reveal ────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Landing hero stagger — precise delays per spec */
+.anim-1 { opacity: 0; animation: fadeIn  0.5s ease forwards; animation-delay: 0ms;   } /* icon */
+.anim-2 { opacity: 0; animation: fadeUp  0.6s ease forwards; animation-delay: 150ms; } /* headline */
+.anim-3 { opacity: 0; animation: fadeIn  0.5s ease forwards; animation-delay: 300ms; } /* pill */
+.anim-4 { opacity: 0; animation: fadeUp  0.55s ease forwards; animation-delay: 400ms; } /* subheadline */
+.anim-5 { opacity: 0; animation: fadeIn  0.5s ease forwards; animation-delay: 550ms; } /* buttons */
+
+/* Page fade-in */
+.page-fade { animation: fadeIn 0.25s ease forwards; }
+
+/* ── Loading state ───────────────────────────────────────── */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.55; }
+}
+.btn-analyzing { animation: pulse-subtle 1.8s ease-in-out infinite; }
+
+@keyframes msgFade {
+  0%   { opacity: 0; transform: translateY(4px); }
+  12%  { opacity: 1; transform: translateY(0); }
+  88%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-3px); }
+}
+.loading-msg { animation: msgFade 2.6s ease forwards; }
+
+/* Animated loading dots */
+@keyframes dotWave {
+  0%, 100% { opacity: 0.2; transform: translateY(0); }
+  50%       { opacity: 1;   transform: translateY(-2px); }
+}
+.loading-dots span {
+  display: inline-block;
+  animation: dotWave 1s ease-in-out infinite;
+  color: var(--color-accent);
+  margin-left: 1px;
+}
+.loading-dots span:nth-child(1) { animation-delay: 0s; }
+.loading-dots span:nth-child(2) { animation-delay: 0.18s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.36s; }
+
+/* ── Status pill ─────────────────────────────────────────── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: rgba(255,255,255,0.02);
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(74,158,255,0.5); }
+  50%       { box-shadow: 0 0 0 4px rgba(74,158,255,0); }
+}
+.status-dot { animation: dotPulse 2s ease-in-out infinite; }
+
+/* ── Progress bar ────────────────────────────────────────── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--color-accent);
+  box-shadow: 0 0 10px rgba(74,158,255,0.6);
+  z-index: 99998;
+  transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}

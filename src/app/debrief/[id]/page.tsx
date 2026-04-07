@@ -1,24 +1,22 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import ReactMarkdown from 'react-markdown'
 import { createClient } from '@/lib/supabase/server'
 import { ArrowLeft, Plus } from 'lucide-react'
+import Navbar from '@/components/Navbar'
+import AnalysisContent from '@/components/AnalysisContent'
+import CopyButton from '@/components/CopyButton'
+import PageProgressBar from '@/components/PageProgressBar'
+import BackToTop from '@/components/BackToTop'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
+    month: 'long', day: 'numeric', year: 'numeric',
   })
 }
 
 export default async function DebriefDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
   const { data: debrief } = await supabase
@@ -31,21 +29,38 @@ export default async function DebriefDetailPage({ params }: { params: { id: stri
   if (!debrief) notFound()
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="max-w-2xl mx-auto px-6 py-16">
+    <div className="min-h-screen bg-bg page-fade">
+      <PageProgressBar />
+      <Navbar email={user.email} />
 
-        {/* Nav */}
-        <div className="flex items-center justify-between mb-12">
+      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '48px 24px 96px' }}>
+
+        {/* Sub-nav */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '48px' }}>
           <Link
             href="/dashboard"
-            className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-black transition-colors"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              fontSize: '12px', fontWeight: 500,
+              color: 'var(--color-muted)',
+              textDecoration: 'none',
+              transition: 'color 150ms ease',
+            }}
+            onMouseEnter={undefined}
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={13} />
             Dashboard
           </Link>
           <Link
             href="/debrief/new"
-            className="flex items-center gap-1.5 bg-black text-white px-4 py-2 text-sm font-medium hover:bg-zinc-800 transition-colors"
+            className="btn-shimmer"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '0 16px', height: '40px',
+              fontSize: '13px', fontWeight: 600, color: '#fff',
+              backgroundColor: 'var(--color-accent)',
+              borderRadius: '6px', textDecoration: 'none',
+            }}
           >
             <Plus size={14} />
             New Debrief
@@ -53,33 +68,60 @@ export default async function DebriefDetailPage({ params }: { params: { id: stri
         </div>
 
         {/* Heading */}
-        <div className="mb-10">
-          <h1 className="text-3xl font-bold tracking-tight text-black">
+        <div style={{ maxWidth: '680px', marginBottom: '36px' }}>
+          <h1 style={{
+            fontFamily: 'var(--font-display)', fontWeight: 800,
+            fontSize: 'clamp(1.8rem, 4vw, 2.6rem)',
+            lineHeight: 1.06, letterSpacing: '-0.03em',
+            color: 'var(--color-text)',
+            marginBottom: '10px',
+          }}>
             {debrief.job_title}
           </h1>
-          <p className="mt-1 text-lg text-zinc-500">{debrief.company_name}</p>
-          <p className="mt-3 text-sm text-zinc-400">
+          <p style={{ fontSize: '16px', color: 'var(--color-muted)', marginBottom: '14px' }}>
+            {debrief.company_name}
+          </p>
+          {/* Small caps metadata */}
+          <p style={{
+            fontSize: '10px', fontWeight: 700,
+            letterSpacing: '0.13em', textTransform: 'uppercase',
+            color: 'var(--color-muted)', opacity: 0.75,
+          }}>
             {debrief.interview_type}
-            <span className="mx-2">·</span>
+            <span style={{ margin: '0 8px', opacity: 0.4 }}>·</span>
             {formatDate(debrief.created_at)}
           </p>
         </div>
 
-        <hr className="border-zinc-100 mb-10" />
+        {/* Gradient divider */}
+        <div style={{ height: '1px', background: 'linear-gradient(to right, var(--color-border), transparent)', marginBottom: '36px', maxWidth: '680px' }} />
 
-        {/* Analysis */}
-        <div className="prose prose-zinc prose-sm max-w-none
-          prose-headings:font-semibold prose-headings:text-black prose-headings:tracking-tight
-          prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3
-          prose-p:text-zinc-700 prose-p:leading-relaxed
-          prose-li:text-zinc-700
-          prose-strong:text-black prose-strong:font-semibold
-          prose-em:text-zinc-600
-          prose-hr:border-zinc-100">
-          <ReactMarkdown>{debrief.analysis ?? ''}</ReactMarkdown>
+        {/* Analysis card */}
+        <div className="card-surface" style={{ borderRadius: '6px', maxWidth: '680px' }}>
+          {/* Card header */}
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '12px 24px',
+            borderBottom: '1px solid var(--color-border)',
+          }}>
+            <span style={{
+              fontSize: '10px', fontWeight: 700,
+              letterSpacing: '0.1em', textTransform: 'uppercase',
+              color: 'var(--color-muted)',
+            }}>
+              Analysis
+            </span>
+            <CopyButton text={debrief.analysis ?? ''} />
+          </div>
+
+          <div style={{ padding: '32px 28px' }}>
+            <AnalysisContent content={debrief.analysis ?? ''} />
+          </div>
         </div>
 
       </div>
-    </main>
+
+      <BackToTop />
+    </div>
   )
 }
