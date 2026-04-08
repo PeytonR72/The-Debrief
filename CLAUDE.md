@@ -202,3 +202,10 @@ To test webhooks locally:
 - `stripe listen` shows nothing after checkout → CLI is logged into wrong Stripe account. Run `stripe login` and re-authenticate to the correct account.
 - Webhook returns 200 but profile not updated → `stripe_customer_id` is null in the profile (checkout route failed to write it due to RLS). Confirm checkout route uses service role client for DB ops.
 - Webhook returns 400 "Invalid signature" → signing secret in `.env.local` doesn't match current `stripe listen` session. Copy the new secret and restart dev server.
+
+## Important Supabase Pattern
+Any server-side route that writes to the database must use the 
+service role client (/lib/supabase/server-admin.ts or equivalent),
+NOT the cookie-based client. The cookie client respects RLS and 
+will silently block writes in API routes. This caused a bug in the 
+Stripe checkout flow where stripe_customer_id was never saved.

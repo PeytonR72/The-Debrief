@@ -38,8 +38,8 @@ const freeFeatures = [
 const proFeatures = [
   'Unlimited debriefs',
   'Priority analysis',
-  'Export to PDF',
-  'Email summaries',
+  'Export to PDF (coming soon)',
+  'Email summaries (coming soon)',
 ]
 
 /* ── Component ───────────────────────────────────────────── */
@@ -841,20 +841,6 @@ export default function LandingPage() {
                   >
                     Pro
                   </p>
-                  <span
-                    style={{
-                      fontSize: '10px', fontWeight: 600,
-                      color: 'var(--color-accent)',
-                      backgroundColor: 'rgba(74,158,255,0.1)',
-                      border: '1px solid rgba(74,158,255,0.2)',
-                      borderRadius: '999px',
-                      padding: '2px 8px',
-                      letterSpacing: '0.05em',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Coming Soon
-                  </span>
                 </div>
                 <p
                   style={{

@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { anthropic } from '@/lib/anthropic'
+
+function getServiceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 const SYSTEM_PROMPT = `You are a senior hiring manager and interview coach with 15+ years of experience across tech, data, and AI companies. Your job is to debrief candidates after interviews with honesty and genuine helpfulness, not empty validation.
 
@@ -164,7 +172,7 @@ ${interview_notes}`
           .select('id')
           .single()
 
-        await supabase.rpc('increment_debrief_count', { user_id: user.id })
+        await getServiceClient().rpc('increment_debrief_count', { user_id: user.id })
 
         if (debrief?.id) {
           controller.enqueue(
