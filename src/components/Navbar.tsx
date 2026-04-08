@@ -4,9 +4,11 @@ import Link from 'next/link'
 interface NavbarProps {
   email?: string
   showSignOut?: boolean
+  subscriptionStatus?: string
+  actionSlot?: React.ReactNode
 }
 
-export default function Navbar({ email, showSignOut = true }: NavbarProps) {
+export default function Navbar({ email, showSignOut = true, subscriptionStatus, actionSlot }: NavbarProps) {
   return (
     <nav
       style={{
@@ -51,7 +53,7 @@ export default function Navbar({ email, showSignOut = true }: NavbarProps) {
 
         {/* Right side */}
         {(email || showSignOut) && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {email && (
               <span style={{
                 fontSize: '12px',
@@ -64,6 +66,24 @@ export default function Navbar({ email, showSignOut = true }: NavbarProps) {
                 {email}
               </span>
             )}
+            {/* Pro badge */}
+            {subscriptionStatus === 'active' && (
+              <span style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 600,
+                fontSize: '11px',
+                color: '#fff',
+                backgroundColor: 'var(--color-accent)',
+                borderRadius: '4px',
+                padding: '2px 6px',
+                letterSpacing: '0.03em',
+                flexShrink: 0,
+              }}>
+                Pro
+              </span>
+            )}
+            {/* Upgrade / Manage Subscription slot (client component injected from page) */}
+            {actionSlot}
             {showSignOut && (
               <form action="/auth/signout" method="POST">
                 <button

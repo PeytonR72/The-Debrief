@@ -3,6 +3,8 @@ export type Profile = {
   email: string
   debrief_count: number
   is_pro: boolean
+  stripe_customer_id: string | null
+  subscription_status: 'free' | 'active'
   created_at: string
 }
 

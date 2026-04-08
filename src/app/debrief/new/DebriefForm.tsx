@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ArrowRight, ChevronRight } from 'lucide-react'
 import AnalysisContent from '@/components/AnalysisContent'
+import UpgradeModal from '@/components/UpgradeModal'
 
 type Status = 'idle' | 'streaming' | 'done' | 'error'
 
@@ -46,12 +47,13 @@ export default function DebriefForm() {
   const [jobDescription, setJobDescription] = useState('')
   const [interviewNotes, setInterviewNotes] = useState('')
 
-  const [status,       setStatus]       = useState<Status>('idle')
-  const [analysis,     setAnalysis]     = useState('')
-  const [debriefId,    setDebriefId]    = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState('')
-  const [loadingMsg,   setLoadingMsg]   = useState(LOADING_MESSAGES[0])
-  const [msgKey,       setMsgKey]       = useState(0)
+  const [status,           setStatus]           = useState<Status>('idle')
+  const [analysis,         setAnalysis]         = useState('')
+  const [debriefId,        setDebriefId]        = useState<string | null>(null)
+  const [errorMessage,     setErrorMessage]     = useState('')
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false)
+  const [loadingMsg,       setLoadingMsg]       = useState(LOADING_MESSAGES[0])
+  const [msgKey,           setMsgKey]           = useState(0)
 
   const analysisRef  = useRef('')
   const msgIndexRef  = useRef(0)
@@ -66,8 +68,7 @@ export default function DebriefForm() {
     return () => clearInterval(interval)
   }, [status])
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function runDebrief() {
     setStatus('streaming')
     setAnalysis('')
     setDebriefId(null)
@@ -89,6 +90,12 @@ export default function DebriefForm() {
           interview_type:  interviewType,
         }),
       })
+
+      if (response.status === 402) {
+        setUpgradeModalOpen(true)
+        setStatus('idle')
+        return
+      }
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}))
@@ -119,6 +126,11 @@ export default function DebriefForm() {
       setErrorMessage(err instanceof Error ? err.message : 'Something went wrong.')
       setStatus('error')
     }
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    runDebrief()
   }
 
   const noteLen = interviewNotes.length
@@ -237,14 +249,30 @@ export default function DebriefForm() {
 
       {/* Error */}
       {status === 'error' && (
-        <div style={{
-          marginTop: '24px', padding: '12px 16px', fontSize: '13px',
-          color: 'var(--color-danger)',
-          border: '1px solid rgba(255,107,107,0.3)',
-          backgroundColor: 'rgba(255,107,107,0.06)',
-          borderRadius: '4px',
-        }}>
-          {errorMessage}
+        <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{
+            padding: '12px 16px', fontSize: '13px',
+            color: 'var(--color-danger)',
+            border: '1px solid rgba(255,107,107,0.3)',
+            backgroundColor: 'rgba(255,107,107,0.06)',
+            borderRadius: '4px',
+          }}>
+            {errorMessage}
+          </div>
+          <button
+            onClick={runDebrief}
+            className="btn-shimmer"
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              gap: '8px', height: '44px',
+              fontSize: '14px', fontWeight: 600, color: '#fff',
+              backgroundColor: 'var(--color-accent)',
+              borderRadius: '6px', border: 'none',
+              cursor: 'pointer',
+            }}
+          >
+            Try Again
+          </button>
         </div>
       )}
 
@@ -275,6 +303,7 @@ export default function DebriefForm() {
           )}
         </div>
       )}
+      <UpgradeModal isOpen={upgradeModalOpen} onClose={() => setUpgradeModalOpen(false)} />
     </>
   )
 }

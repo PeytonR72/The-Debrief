@@ -24,6 +24,7 @@ html {
   font-family: var(--font-body), 'DM Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 /* Radial gradient — lit from above */
@@ -284,4 +285,72 @@ button:active {
   box-shadow: 0 0 10px rgba(74,158,255,0.6);
   z-index: 99998;
   transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Landing page hero stagger (new page) ────────────────── */
+.lp-anim-1 { opacity: 0; animation: fadeIn  0.5s  ease forwards; animation-delay:   0ms; }
+.lp-anim-2 { opacity: 0; animation: fadeUp  0.65s ease forwards; animation-delay: 150ms; }
+.lp-anim-3 { opacity: 0; animation: fadeIn  0.55s ease forwards; animation-delay: 300ms; }
+.lp-anim-4 { opacity: 0; animation: fadeIn  0.5s  ease forwards; animation-delay: 450ms; }
+.lp-anim-5 { opacity: 0; animation: fadeIn  0.5s  ease forwards; animation-delay: 550ms; }
+.lp-anim-6 { opacity: 0; animation: fadeIn  0.5s  ease forwards; animation-delay: 650ms; }
+.lp-anim-7 { opacity: 0; animation: fadeUp  0.8s  ease forwards; animation-delay: 780ms; }
+
+/* ── Hero icon — slow breathing pulse (distinct from float) ─ */
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 8px  rgba(74,158,255,0.28)); }
+  50%       { transform: scale(1.06); filter: drop-shadow(0 0 20px rgba(74,158,255,0.55)); }
+}
+.icon-pulse { animation: iconPulse 4s ease-in-out infinite; }
+
+/* ── Product mockup float ────────────────────────────────── */
+@keyframes mockupFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+.mockup-float { animation: mockupFloat 6s ease-in-out infinite; }
+
+/* ── Scroll-triggered section reveal ────────────────────── */
+.section-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.section-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Success pulsing dot (green, for beta pill) ──────────── */
+@keyframes dotPulseSuccess {
+  0%, 100% { box-shadow: 0 0 0 0   rgba(74,255,176,0.5); }
+  50%       { box-shadow: 0 0 0 4px rgba(74,255,176,0);   }
+}
+.status-dot-success {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--color-success);
+  flex-shrink: 0;
+  animation: dotPulseSuccess 2s ease-in-out infinite;
+}
+
+/* ── Public landing navbar — responsive ──────────────────── */
+.nav-links-desktop { display: flex; }
+.nav-cta-desktop   { display: flex; align-items: center; }
+.nav-hamburger     { display: none; }
+
+@media (max-width: 768px) {
+  .nav-links-desktop { display: none !important; }
+  .nav-cta-desktop   { display: none !important; }
+  .nav-hamburger     { display: flex !important; }
+}
+
+/* ── Dashboard card — left accent flash on hover ─────────── */
+/* Must come after .card-hover to win specificity tie */
+.card-accent-left:hover {
+  box-shadow:
+    inset 3px 0 0 var(--color-accent),
+    inset 0 1px 0 rgba(255,255,255,0.07),
+    0 12px 32px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(74,158,255,0.1);
 }

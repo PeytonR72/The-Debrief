@@ -1,8 +1,11 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { Plus, ArrowRight, ScrollText } from 'lucide-react'
+import { Plus, ArrowRight, ScrollText, Calendar } from 'lucide-react'
 import Navbar from '@/components/Navbar'
+import ManageSubscriptionButton from '@/components/ManageSubscriptionButton'
+import UpgradeButton from '@/components/UpgradeButton'
 import type { Debrief } from '@/types'
 
 export const dynamic = 'force-dynamic'
@@ -26,20 +29,31 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  const { data: debriefs } = await supabase
-    .from('debriefs')
-    .select('id, job_title, company_name, interview_type, created_at')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  const [{ data: debriefs }, { data: profile }] = await Promise.all([
+    supabase
+      .from('debriefs')
+      .select('id, job_title, company_name, interview_type, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('profiles')
+      .select('subscription_status')
+      .eq('id', user.id)
+      .single(),
+  ])
 
   return (
     <div className="min-h-screen bg-bg page-fade">
-      <Navbar email={user.email} />
+      <Navbar
+        email={user.email}
+        subscriptionStatus={profile?.subscription_status}
+        actionSlot={profile?.subscription_status === 'active' ? <ManageSubscriptionButton /> : <UpgradeButton />}
+      />
 
       <div style={{ maxWidth: '800px', margin: '0 auto', padding: '48px 24px' }}>
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '12px' }}>
           <h1 style={{
             fontFamily: 'var(--font-display)', fontWeight: 700,
             fontSize: '22px', letterSpacing: '-0.02em',
@@ -100,7 +114,7 @@ export default async function DashboardPage() {
                 <li key={d.id}>
                   <Link
                     href={`/debrief/${d.id}`}
-                    className="card-surface card-hover card-scan"
+                    className="card-surface card-hover card-scan card-accent-left"
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       gap: '16px', padding: '20px 24px',
@@ -138,7 +152,10 @@ export default async function DashboardPage() {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-                      <span style={{ fontSize: '11px', color: 'var(--color-muted)' }}>{formatDate(d.created_at)}</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: 'var(--color-muted)' }}>
+                        <Calendar size={12} style={{ flexShrink: 0 }} />
+                        {formatDate(d.created_at)}
+                      </span>
                       <ArrowRight size={14} className="card-arrow" />
                     </div>
                   </Link>
@@ -148,6 +165,28 @@ export default async function DashboardPage() {
           </ul>
         )}
       </div>
+
+      {/* Footer */}
+      <footer style={{ maxWidth: '800px', margin: '0 auto', padding: '24px 24px 32px', position: 'relative' }}>
+        <div aria-hidden style={{
+          position: 'absolute', top: 0, left: '24px', right: '24px',
+          height: '1px',
+          background: 'linear-gradient(to right, var(--color-border), transparent)',
+        }} />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Image src="/debrief_icon.png" alt="" width={18} height={18} />
+            <span style={{
+              fontFamily: 'var(--font-display)', fontWeight: 700,
+              fontSize: '13px', color: 'var(--color-muted)',
+              letterSpacing: '-0.01em',
+            }}>
+              The Debrief
+            </span>
+          </div>
+          <span style={{ fontSize: '12px', color: 'var(--color-muted)' }}>© 2026</span>
+        </div>
+      </footer>
     </div>
   )
 }

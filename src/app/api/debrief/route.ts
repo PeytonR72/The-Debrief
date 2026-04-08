@@ -80,6 +80,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('debrief_count, subscription_status')
+    .eq('id', user.id)
+    .single()
+
+  if (profile?.subscription_status !== 'active' && (profile?.debrief_count ?? 0) >= 1) {
+    return NextResponse.json(
+      {
+        error: 'limit_reached',
+        message: 'You have used your free debrief. Upgrade to Pro for unlimited access.',
+      },
+      { status: 402 }
+    )
+  }
+
   let body: {
     job_title: string
     company_name: string
