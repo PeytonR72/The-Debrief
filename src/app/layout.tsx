@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Manrope, DM_Sans, Syne } from 'next/font/google'
+import { Manrope, DM_Sans } from 'next/font/google'
 import './globals.css'
 
 const manrope = Manrope({
@@ -16,13 +16,6 @@ const dmSans = DM_Sans({
   display: 'swap',
 })
 
-const syne = Syne({
-  subsets: ['latin'],
-  variable: '--font-syne',
-  weight: ['600', '700', '800'],
-  display: 'swap',
-})
-
 export const metadata: Metadata = {
   title: 'The Debrief',
   description: 'An honest breakdown of every interview.',
@@ -33,7 +26,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${manrope.variable} ${dmSans.variable} ${syne.variable}`}>
+    <html lang="en" className={`${manrope.variable} ${dmSans.variable}`}>
       <body className="font-body">{children}</body>
     </html>
   )
