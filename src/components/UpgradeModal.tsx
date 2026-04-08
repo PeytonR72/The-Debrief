@@ -110,7 +110,7 @@ export default function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
           color: 'var(--color-text)',
           marginBottom: '8px', letterSpacing: '-0.02em',
         }}>
-          You've used your free debrief
+          You&apos;ve used your free debrief
         </h3>
         <p style={{ fontSize: '13px', color: 'var(--color-muted)', marginBottom: '24px', lineHeight: 1.6 }}>
           Upgrade to Pro for unlimited debriefs, priority analysis, and more.

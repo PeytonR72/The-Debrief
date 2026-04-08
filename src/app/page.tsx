@@ -1019,7 +1019,7 @@ export default function LandingPage() {
                   Join the Pro waitlist
                 </h3>
                 <p style={{ fontSize: '13px', color: 'var(--color-muted)' }}>
-                  We'll let you know when Pro launches.
+                  We&apos;ll let you know when Pro launches.
                 </p>
               </div>
               <button
