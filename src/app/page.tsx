@@ -531,7 +531,7 @@ export default function LandingPage() {
                     }}
                   >
                     <span style={{ fontSize: '11px', color: 'var(--color-muted)', letterSpacing: '0.01em' }}>
-                      thedebrief.app/debrief/analysis
+                      thedebrief.dev/debrief/analysis
                     </span>
                   </div>
                 </div>
